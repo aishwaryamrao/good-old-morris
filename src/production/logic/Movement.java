@@ -20,6 +20,14 @@ public class Movement
         this.isRemove = isRemoval;
         this.isPlacement = !(isRemoval);
     }
+
+    public Movement(int playerTurn, int locationTo, int locationFrom){ //movement
+        this.playerTurn=playerTurn;
+        this.locationFrom=locationFrom;
+        this.locationTo=locationTo;
+        this.isRemove = false;
+        this.isPlacement = false;
+    }
     public int getPlayerTurn(){
         return playerTurn;
     }

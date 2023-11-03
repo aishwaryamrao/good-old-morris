@@ -90,15 +90,31 @@ public class Board
         //currently method checking placement phase for Sprint 1
         if(gamePhase==GamePhase.remove) {
             processRemove(location);
-        } else if (isPlacementPhase()) {
+        }
+        else if(moveInProgress) {
+            finishMovement(location);
+        }
+        else if (isPlacementPhase()) {
             placementProcess(location);
         }
+        else if(validFirstClick(location,playerTurn)) {
+                prevClick=location;
+                moveInProgress=true;
+            }
+            dispStatus+="";
+
     }
 
     public boolean isPlacementPhase() {
         // Method to check if game is in placing phase
         // Checks if both player has unplacedpawns or not
         return (hasUnplacedPawns(0) || hasUnplacedPawns(1));
+    }
+
+    private boolean validFirstClick(int loc, int player) {
+
+        return isPlayersPawn(player,loc);
+
     }
 
     private void placementProcess(int location) {
@@ -187,29 +203,29 @@ public class Board
             return false;
         }
 
-//        if(!placement) {
-//
-//            int locationFrom=currMovement.getLocationFrom();
-//
-//            if (!isValidLoc(locationFrom)) {
-//                return false;
-//            }
-//
-//            // check that the player has no piece's left
-//            if (hasUnplacedPawns(playerNum)) {
-//                return false;
-//            }
-//            // check that the locationFrom is the correct player
-//            if (!isPlayersPawn(playerNum, locationFrom)) {
-//                return false;
-//            }
-//            // check if the two locations are adjacent or if flying is valid
-//            // !Adj && !CanFly <==> !(Adj || CanFly)
-//            if (!(AreAdjacent(locationTo, locationFrom) || CanFly(playerNum))) {
-//                return false;
-//            }
-//
-//        }
+        if(!placement) {
+
+            int locationFrom=currMovement.getLocationFrom();
+
+            if (!isValidLoc(locationFrom)) {
+                return false;
+            }
+
+            // check that the player has no piece's left
+            if (hasUnplacedPawns(playerNum)) {
+                return false;
+            }
+            // check that the locationFrom is the correct player
+            if (!isPlayersPawn(playerNum, locationFrom)) {
+                return false;
+            }
+            // check if the two locations are adjacent or if flying is valid
+            // !Adj && !CanFly <==> !(Adj || CanFly)
+            if (!(AreAdjacent(locationTo, locationFrom) || CanFly(playerNum))) {
+                return false;
+            }
+
+        }
          else {
             if (!hasUnplacedPawns(playerNum)) {
                 return false;
@@ -230,6 +246,30 @@ public class Board
     public boolean hasUnplacedPawns(Integer playerNum) {
         // checks if a player has unplaced pieces
         return (unplacedPawns[playerNum] > 0);
+    }
+
+    public boolean AreAdjacent(Integer loc1, Integer loc2) {
+        // checks if the location are adjacent
+        return (Arrays.asList(adj.get(loc1)).contains(loc2));
+    }
+
+    private void finishMovement(int location) {
+        Movement currentMovement=new Movement(playerTurn,location,prevClick);
+
+        if(isValidMovement(currentMovement)) {
+
+            takeAction(currentMovement);
+            prevClick=0;
+            moveInProgress=false;
+
+        }else {
+            dispStatus+="Invalid Movement\n";
+            prevClick=0;
+            moveInProgress=false;
+        }
+
+
+
     }
 
     public void takeAction(Movement currMovement){
@@ -291,8 +331,23 @@ public class Board
                 playerTurn = (playerTurn + 1) % 2;
             }
             return (formedMill);
+        }else { //Movement
+            int locationFrom=currMovement.getLocationFrom();
+
+            if (!isValidMovement(currMovement)) {
+                throw new Exception("Invalid movement");
+            }
+            // otherwise is valid move
+            movePawn(playerNum, locationTo, locationFrom);
+            Boolean formedMill = IsMill(locationTo);
+            if (formedMill) {
+                gamePhase = GamePhase.remove;
+            }
+            else {
+                playerTurn = (playerTurn + 1) % 2;
+            }
+            return (formedMill);
         }
-        return false ;
     }
 
 
@@ -309,6 +364,12 @@ public class Board
         removePawnFrom(location);
         gamePhase = GamePhase.move;
         playerTurn = (playerTurn + 1) % 2;
+    }
+
+    private void movePawn(Integer playerNum, Integer locationTo, Integer locationFrom) {
+        // moves a pieces from one location to another
+        GridLoc[locationTo] = playerNum + 1;
+        GridLoc[locationFrom] = 0;
     }
 
     public boolean isValidRemoval(Integer playerNum, Integer location) {
@@ -353,6 +414,11 @@ public class Board
         Integer player = GridLoc[location] - 1;
         livePawns[player]--;
         GridLoc[location] = 0;
+    }
+
+    public boolean CanFly(Integer playerNum) {
+        /* Checks if a player can fly, this means the player has 3 or less pieces */
+        return livePawns[playerNum] <= 3;
     }
 
     public String getPlayerName(int playerNum) {
