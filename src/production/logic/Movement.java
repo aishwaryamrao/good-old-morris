@@ -14,7 +14,12 @@ public class Movement
         this.isRemove = false;
         this.isPlacement = true;
     }
-
+    public Movement(int playerTurn, int location, boolean isRemoval){ //removal
+        this.playerTurn=playerTurn;
+        this.locationTo=location;
+        this.isRemove = isRemoval;
+        this.isPlacement = !(isRemoval);
+    }
     public int getPlayerTurn(){
         return playerTurn;
     }
