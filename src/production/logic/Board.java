@@ -421,6 +421,82 @@ public class Board
         return livePawns[playerNum] <= 3;
     }
 
+    public int isWinner() {
+
+        if(livePawns[0] <=2) {
+            return 2;
+        }
+        if(livePawns[1] <=2) {
+            return 1;
+        }
+        if(!HasLegalMoves(0)) {
+            return 2;
+        }
+        if(!HasLegalMoves(1)) {
+            return 1;
+        }
+
+        return -1;
+    }
+
+    public boolean HasLegalMoves(Integer playerNum) {
+        // checks if a player has a possible move
+        // if during placement
+        if (hasUnplacedPawns(playerNum) || hasUnplacedPawns((playerNum+1)%2)) {
+            return true;
+        }
+        // if looking for movement
+        if (gamePhase == GamePhase.move) {
+            // if they can fly, there is a guaranteed move
+            if (CanFly(playerNum)) {
+                return true;
+            }
+            // otherwise start with location 0
+            // see if the player is in that position
+            // and there are open adjacent spot
+            int i = 0;
+            while (i < 24) {
+                if (GridLoc[i] == (playerNum + 1)) {
+                    Integer[] possibleAdj = adj.get(i);
+                    for (int j = 0; j < possibleAdj.length; j++) {
+                        if (isEmpty(possibleAdj[j])) {
+                            return true;
+                        }
+                    }
+                }
+                i++;
+            }
+            // if we iterated through the full board and they cannot move
+            return false;
+        }
+        // want to find a piece of the opponent that is not in a mill
+        if (gamePhase == GamePhase.remove) {
+            int i = 0;
+            while (i < 24) {
+                if (GridLoc[i] == ((playerNum + 1) % 2)) {
+                    if (!IsMill(i) || everyPieceAMill((playerNum))) {
+                        return true;
+                    }
+                }
+                i++;
+            }
+            return false;
+        }
+        // if neither of those game states (impossible since enum)
+        return false;
+    }
+
+    public boolean everyPieceAMill(int playerNum) {
+
+        for (int x=0;x<24;x++) {
+            if (isPlayersPawn(playerNum,x) && !IsMill(x)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public String getPlayerName(int playerNum) {
         if(playerNum==0) {
             return getPlayerOneName();

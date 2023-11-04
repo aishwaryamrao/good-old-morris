@@ -18,10 +18,13 @@ public class GameGUI
     public JFrame gameWindow = new JFrame("Good Old Morris");
     // private JFrame welcomeWindow = new JFrame("Welcome to Good Old Morris");
     private JPanel gameMenu;
+
+    private BoardPanel gameBoard;
     List<Pawn> blackPawns = new ArrayList<Pawn>();
     List<Pawn> whitePawns = new ArrayList<Pawn>();
     private GridPoint[] gridPoints = new GridPoint[24];
     private Board currentBoard;
+    private JTextArea statusText;
     JPanel playerPanel = new JPanel(new BorderLayout());
 
     public static final int PLAYER_PAWN = 9;
@@ -146,6 +149,8 @@ public class GameGUI
         }
     }
 
+
+
     public void createNewBoard()
     {
 
@@ -158,6 +163,11 @@ public class GameGUI
         gameWindow.setVisible(true);
         currentBoard = new Board(); // Backend board logic
         createPlayersPanel();
+    }
+
+    private void clearBoard() { // Unused method but will later be used to clear the board and start new game
+        gameBoard.setVisible(false);
+        gameWindow.getContentPane().remove(gameBoard);
     }
 
     private void createClickablePoints()
@@ -263,6 +273,22 @@ public class GameGUI
         playerPanel.add(new PlayersPanel(blackPawns, whitePawns));
         gameWindow.getContentPane().add(playerPanel, BorderLayout.SOUTH);
     }
+
+    private void endGame(int winningPlayer, String winningPlayerName) {
+
+        String winMessage = "Player " + winningPlayer + "(" + winningPlayerName + ") has won the game!!!";
+
+        int confirmed = JOptionPane.showConfirmDialog(gameWindow, winMessage, "New Game?", JOptionPane.YES_NO_OPTION);
+        if (confirmed == JOptionPane.YES_OPTION) {
+            statusText.setText(null);
+            clearBoard();
+            createNewBoard();
+        } else {
+            gameWindow.dispose();
+        }
+    }
+
+
     private class BoardPanel extends JPanel
     {
 
@@ -292,6 +318,13 @@ public class GameGUI
             currentBoard.takeInput(pointID);
             updatePieceList();
             playerPanel.repaint();
+            int end = currentBoard.isWinner();
+            if (end>-1) {
+
+                endGame(end, currentBoard.getPlayerName(end-1));
+                statusText.append("The game is over");
+            }
+
         }
         private GridPoint getClickedPoint(int clickX, int clickY) {
             /*
