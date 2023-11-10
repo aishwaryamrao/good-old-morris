@@ -6,19 +6,19 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import production.logic.Board;
 
 public class Menu {
     private JFrame welcomeWindow = new JFrame("Good Old Morris");
     private boolean isCPUOpponent;
-
+    private Board currentBoard = new Board();
     // creates the Menu frame and containers
-    public Menu() {
-
-        MakeWelcomeFrame();
-
+    public Menu()
+    {
+        makeWelcomeFrame();
     }
-    private void MakeWelcomeFrame() {
-
+    private void makeWelcomeFrame()
+    {
         JPanel welcomePanel = new JPanel();
         try {
             welcomeWindow.setIconImage(ImageIO.read(getClass().getResource("/resources/images/logo.jpg")));
@@ -26,16 +26,12 @@ public class Menu {
             // TODO Auto-generated catch block
             e2.printStackTrace();
         }
-
         welcomePanel.setLayout(new GridLayout(0, 1));
-
         JLabel welcomeText = new JLabel("Welcome to Good Old Morris\n");
         welcomeText.setHorizontalAlignment(JLabel.CENTER);
         welcomeText.setVerticalAlignment(JLabel.CENTER);
         welcomeText.setFont(new Font("Verdana", Font.ITALIC, 24));
-
         JLabel optionsText = new JLabel("Choose your options:\n");
-
         JRadioButton radioButtonOption1 = new JRadioButton("Human vs Computer");
         JRadioButton radioButtonOption2 = new JRadioButton("Human vs Human");
         radioButtonOption2.setSelected(true);
@@ -73,8 +69,6 @@ public class Menu {
             }
         });
 
-
-
         JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Right-align the component
         JTextField player1Name = new JTextField(10);
         player1Name.setPreferredSize(new Dimension(150, 25)); // Set dimensions
@@ -90,20 +84,19 @@ public class Menu {
         acceptButton.addActionListener(e -> {
             if (player1Name.getInputVerifier().shouldYieldFocus(player1Name)) {
                 if (player2Name.getInputVerifier().shouldYieldFocus(player2Name)) {
-                    GameGUI myFrame = new GameGUI();
+                    currentBoard.setPlayerOneName(player1Name.getText());
+                    currentBoard.setPlayerTwoName(player2Name.getText());
+                    GameGUI myFrame = new GameGUI(currentBoard);
                     myFrame.beginGame();
                     myFrame.createNewBoard();
                     myFrame.gameWindow.pack();
                     myFrame.gameWindow.setVisible(true);
-                    // The text is valid; you can proceed with your logic here
-                    // ...
                 } else {
                     JOptionPane.showMessageDialog(null, "Player Name cannot be empty", "Validation Error", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Player Name cannot be empty", "Validation Error", JOptionPane.ERROR_MESSAGE);
             }
-
         });
 
         panel2.add(new JLabel("Name"));
@@ -131,7 +124,7 @@ public class Menu {
         });
         aboutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                AboutClick();
+                aboutClick();
             }
         });
         welcomePanel.add(welcomeText);
@@ -154,16 +147,17 @@ public class Menu {
         welcomeWindow.pack();
         welcomeWindow.setLocationRelativeTo(null);
         welcomeWindow.setVisible(true);
-
-
     }
     //about message to be displayed when help button is clicked
-    public void AboutClick() {
+    public void aboutClick() {
         String aboutMessage = "The basic aim of Nine Mens Morris is to make \"mills\" - vertical or horizontal lines of three in a row.\nEvery time this is achieved, an opponent's piece is removed, the overall objective being to reduce the number of opponent's pieces to less than three or to render the opponent unable to play.";
-
         JOptionPane.showMessageDialog(welcomeWindow, aboutMessage);
-
-
+    }
+    private void getPlayersName(){
+        String p1=JOptionPane.showInputDialog("Player 1 : ");
+        currentBoard.setPlayerOneName(p1);
+        String p2=JOptionPane.showInputDialog("Player 2 : ");
+        currentBoard.setPlayerTwoName(p2);
     }
     public class NotNullOrEmptyVerifier extends InputVerifier {
         @Override
@@ -176,7 +170,5 @@ public class Menu {
             return false;
         }
     }
-
-
 }
 

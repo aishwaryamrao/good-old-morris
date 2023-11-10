@@ -11,7 +11,6 @@ public class GridPoint extends JPanel
 {
     private int id; //0-23
     private int x, y;
-
     private static final int SIZE = 20;
     private static final int PIECE_SIZE = 45;
 
@@ -38,28 +37,35 @@ public class GridPoint extends JPanel
         return id;
     }
 
-    public void drawPiece(Graphics graphic, Board currentGame) {
+    public void drawPiece(Graphics graphic, Board currentGame)
+    {
         /* get called by game board object to draw the piece
          * in the graphics context in the correct location */
 
-        if(!currentGame.isEmpty(id)) {
+        if(!currentGame.isEmpty(id))
+        {
             Image image;
-            try {
+            try
+            {
                 // reads in image
-                if (currentGame.isPlayersPawn(0, id)) {
+                if (currentGame.isPlayersPawn(0, id))
+                {
                     graphic.setColor(Color.white);
                     //gameWindow.setIconImage(ImageIO.read(getClass().getResource("/resources/images/whitePiece.png")));
                     image = ImageIO.read(getClass().getResource("/resources/images/whitePawn.png"));
-                } else {
+                }
+                else
+                {
                     graphic.setColor(Color.black);
                     image = ImageIO.read(getClass().getResource("/resources/images/blackPawn.png"));
                 }
                 Image scaledImage = image.getScaledInstance(PIECE_SIZE, PIECE_SIZE, Image.SCALE_DEFAULT);
                 graphic.drawImage(scaledImage, (x - SIZE), (y - SIZE), null);
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
         }
     }
-
 }

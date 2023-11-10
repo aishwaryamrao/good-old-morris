@@ -10,15 +10,12 @@ public class Board
     private String playerOneName="";
     private String playerTwoName="";
     private String dispStatus="";
-
     private HashMap<Integer, Integer[]> adj = new HashMap<Integer, Integer[]>();
     private int prevClick=0;
     private boolean moveInProgress;
     private GamePhase gamePhase;
-
     private Integer[] unplacedPawns = new Integer[] {9, 9};
     private Integer[] livePawns = new Integer[] {9, 9};
-
     // all possible mills in an immutable array
     private static final Integer[][] allMills = {
             {0, 1, 2},
@@ -39,7 +36,8 @@ public class Board
             {2, 14, 23}
     };
 
-    private void createAdjList() {
+    private void createAdjList()
+    {
         // mark all clickable spots on the board as 0
         Arrays.fill(GridLoc, 0, 24, 0);
 
@@ -79,7 +77,6 @@ public class Board
     private void initBoard()
     {
         // mark all clickable spots on the board as 0
-        //Arrays.fill(GridLoc, 0, 24, 0);
         createAdjList();
     }
 
@@ -105,40 +102,45 @@ public class Board
 
     }
 
-    public boolean isPlacementPhase() {
+    public boolean isPlacementPhase()
+    {
         // Method to check if game is in placing phase
         // Checks if both player has unplacedpawns or not
         return (hasUnplacedPawns(0) || hasUnplacedPawns(1));
     }
 
-    private boolean validFirstClick(int loc, int player) {
-
+    private boolean validFirstClick(int loc, int player)
+    {
         return isPlayersPawn(player,loc);
-
     }
 
-    private void placementProcess(int location) {
+    private void placementProcess(int location)
+    {
         //Placing phase logic
         Movement currentMovement =new Movement(playerTurn,location);
-        if(isValidMovement(currentMovement)) {
+        if(isValidMovement(currentMovement))
+        {
             takeAction(currentMovement);
         }
-
     }
 
-    private void processRemove(int location) {
-
-        if(isValidRemoval(playerTurn,location)) {
+    private void processRemove(int location)
+    {
+        if(isValidRemoval(playerTurn,location))
+        {
             Movement currentMovement=new Movement(playerTurn,location,true);
             takeAction(currentMovement);
             prevClick=0;
             moveInProgress=false;
-        }else {
+        }
+        else
+        {
             dispStatus+="";
         }
     }
 
-    public boolean IsMill(Integer location) {
+    public boolean hasMillFormed(Integer location)
+    {
         /* checks if the location is part of a mill
          * A mill is formed if a player has three pieces in a straight line
          * either vertical or horizontal */
@@ -146,7 +148,8 @@ public class Board
         // get the value of the location
         Integer playerNum = GridLoc[location];
         // trivial case - is empty
-        if (playerNum == 0) {
+        if (playerNum == 0)
+        {
             return false;
         }
         Integer[] first, second;
@@ -155,35 +158,44 @@ public class Board
         // search the array of possMills search for the two possiblities
         // of this lcoation
         boolean isFirst = true;
-        for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (allMills[i][j] == location) {
+        for (int i = 0; i < 16; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                if (allMills[i][j] == location)
+                {
                     // not this is just a reference
-                    if (isFirst) {
+                    if (isFirst)
+                    {
                         first = allMills[i];
                         isFirst = false;
                     }
-                    else {
+                    else
+                    {
                         second = allMills[i];
                     }
                 }
             }
         }
-        if (GridLoc[first[0]] == playerNum && GridLoc[first[1]] == playerNum && GridLoc[first[2]] == playerNum) {
+        if (GridLoc[first[0]] == playerNum && GridLoc[first[1]] == playerNum && GridLoc[first[2]] == playerNum)
+        {
             return true;
         }
-        if (GridLoc[second[0]] == playerNum && GridLoc[second[1]] == playerNum && GridLoc[second[2]] == playerNum) {
+        if (GridLoc[second[0]] == playerNum && GridLoc[second[1]] == playerNum && GridLoc[second[2]] == playerNum)
+        {
             return true;
         }
         return false;
     }
 
-    public GamePhase getGamePhase() {
+    public GamePhase getGamePhase()
+    {
         // gets the game state on board
         return gamePhase;
     }
 
-    public boolean isValidMovement( Movement currMovement) {
+    public boolean isValidMovement( Movement currMovement)
+    {
         /* Method to check if a particular movement is valid
          * movement. Works with placement or movement */
         // check that both locations exist
@@ -192,172 +204,215 @@ public class Board
         int playerNum=currMovement.getPlayerTurn();
         int locationTo=currMovement.getLocationTo();
 
-        if (!isValidLoc(locationTo)) {
+        if (!isValidLoc(locationTo))
+        {
             return false;
         }
-        if (!isPlayersTurn(playerNum)) {
+        if (!isPlayersTurn(playerNum))
+        {
             return false;
         }
         // check that the location to is empty
-        if (!isEmpty(locationTo)) {
+        if (!isEmpty(locationTo))
+        {
             return false;
         }
 
-        if(!placement) {
+        if(!placement)
+        {
 
             int locationFrom=currMovement.getLocationFrom();
 
-            if (!isValidLoc(locationFrom)) {
+            if (!isValidLoc(locationFrom))
+            {
                 return false;
             }
 
             // check that the player has no piece's left
-            if (hasUnplacedPawns(playerNum)) {
+            if (hasUnplacedPawns(playerNum))
+            {
                 return false;
             }
             // check that the locationFrom is the correct player
-            if (!isPlayersPawn(playerNum, locationFrom)) {
+            if (!isPlayersPawn(playerNum, locationFrom))
+            {
                 return false;
             }
             // check if the two locations are adjacent or if flying is valid
-            // !Adj && !CanFly <==> !(Adj || CanFly)
-            if (!(AreAdjacent(locationTo, locationFrom) || CanFly(playerNum))) {
+            if (!(areAdjacent(locationTo, locationFrom) || canFly(playerNum)))
+            {
                 return false;
             }
 
         }
-         else {
-            if (!hasUnplacedPawns(playerNum)) {
+         else
+         {
+            if (!hasUnplacedPawns(playerNum))
+            {
                 return false;
             }
         }
         // check game state
-        if (getGamePhase() != GamePhase.move) {
+        if (getGamePhase() != GamePhase.move)
+        {
             return false;
         }
         return true;
     }
 
-    public boolean isValidLoc(Integer location) {
+    public boolean isValidLoc(Integer location)
+    {
         // checks if the location is valid for our data structure
         return !(location < 0 || location > 23);
     }
 
-    public boolean hasUnplacedPawns(Integer playerNum) {
+    public boolean hasUnplacedPawns(Integer playerNum)
+    {
         // checks if a player has unplaced pieces
         return (unplacedPawns[playerNum] > 0);
     }
 
-    public boolean AreAdjacent(Integer loc1, Integer loc2) {
+    public boolean areAdjacent(Integer loc1, Integer loc2)
+    {
         // checks if the location are adjacent
         return (Arrays.asList(adj.get(loc1)).contains(loc2));
     }
 
-    private void finishMovement(int location) {
+    private void finishMovement(int location)
+    {
         Movement currentMovement=new Movement(playerTurn,location,prevClick);
-
-        if(isValidMovement(currentMovement)) {
-
+        if(isValidMovement(currentMovement))
+        {
             takeAction(currentMovement);
             prevClick=0;
             moveInProgress=false;
-
-        }else {
+        }
+        else
+        {
             dispStatus+="Invalid Movement\n";
             prevClick=0;
             moveInProgress=false;
         }
-
-
-
     }
 
-    public void takeAction(Movement currMovement){
-
-        if(currMovement.isRemove()) {
-            try {
+    public void takeAction(Movement currMovement)
+    {
+        if(currMovement.isRemove())
+        {
+            try
+            {
                 removePawn(currMovement);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
 
                 dispStatus += "Invalid Removal\n";
             }
         }
-        if (currMovement.isPlacement()) {
-            try {
+        if (currMovement.isPlacement())
+        {
+            try
+            {
                     makeMove(currMovement);
 
-                } catch (Exception e) {
-
-                    dispStatus += "Invalid Placement\n";
                 }
-
-            } else {
-                try {
+            catch (Exception e)
+            {
+                 dispStatus += "Invalid Placement\n";
+                }
+            }
+        else
+        {
+                try
+                {
                     makeMove(currMovement);
-                } catch (Exception e) {
-
+                }
+                catch (Exception e)
+                {
                     dispStatus += "Invalid Movement\n";
                 }
             }
-
         }
 
-    public boolean isPlayersTurn(Integer playerNum) {
+    public boolean isPlayersTurn(Integer playerNum)
+    {
         // checks if it is a player's turn
         return (playerTurn == playerNum);
     }
-    public boolean isEmpty(Integer location) {
+    public String getPlayersNameTurn()
+    {
+        // gets players turn
+        switch (playerTurn)
+        {
+            case 0:
+                return getPlayerOneName();
+            case 1:
+                return getPlayerTwoName();
+        }
+        return "NotFound";
+    }
+    public boolean isEmpty(Integer location)
+    {
         // checks if location is empty
         return (GridLoc[location] == 0);
     }
 
-    public boolean makeMove(Movement currMovement) throws Exception {
+    public boolean makeMove(Movement currMovement) throws Exception
+    {
         //place the piece in selected location
-
         int locationTo= currMovement.getLocationTo();
         int playerNum= currMovement.getPlayerTurn();
         boolean placement= currMovement.isPlacement();
 
-        if(placement) { //placement
-            if (!isValidMovement(currMovement)) {
+        if(placement)
+        { //placement
+            if (!isValidMovement(currMovement))
+            {
                 throw new Exception("Invalid placement");
             }
             placePawn(playerNum, locationTo);
-            Boolean formedMill = IsMill(locationTo);
-            if (formedMill) {
+            Boolean formedMill = hasMillFormed(locationTo);
+            if (formedMill)
+            {
                 gamePhase = GamePhase.remove;
             }
-            else {
+            else
+            {
                 playerTurn = (playerTurn + 1) % 2;
             }
             return (formedMill);
-        }else { //Movement
+        }
+        else
+        { //Movement
             int locationFrom=currMovement.getLocationFrom();
 
-            if (!isValidMovement(currMovement)) {
+            if (!isValidMovement(currMovement))
+            {
                 throw new Exception("Invalid movement");
             }
             // otherwise is valid move
             movePawn(playerNum, locationTo, locationFrom);
-            Boolean formedMill = IsMill(locationTo);
-            if (formedMill) {
+            Boolean formedMill = hasMillFormed(locationTo);
+            if (formedMill)
+            {
                 gamePhase = GamePhase.remove;
             }
-            else {
+            else
+            {
                 playerTurn = (playerTurn + 1) % 2;
             }
             return (formedMill);
         }
     }
 
-
-    public void removePawn(Movement currMovement) throws Exception {
+    public void removePawn(Movement currMovement) throws Exception
+    {
         /* Remove a pawn
          * If the move is not valid, this will throw an error */
-
         int playerNum=currMovement.getPlayerTurn();
         int location=currMovement.getLocationTo();
-        if (!isValidRemoval(playerNum, location)) {
+        if (!isValidRemoval(playerNum, location))
+        {
             throw new Exception("Invalid movement");
         }
         // otherwise is valid move
@@ -366,41 +421,49 @@ public class Board
         playerTurn = (playerTurn + 1) % 2;
     }
 
-    private void movePawn(Integer playerNum, Integer locationTo, Integer locationFrom) {
+    public void movePawn(Integer playerNum, Integer locationTo, Integer locationFrom)
+    {
         // moves a pieces from one location to another
         GridLoc[locationTo] = playerNum + 1;
         GridLoc[locationFrom] = 0;
     }
 
-    public boolean isValidRemoval(Integer playerNum, Integer location) {
+    public boolean isValidRemoval(Integer playerNum, Integer location)
+    {
         // Checks if a removal is valid
         // check that the location exists
-        if (!isValidLoc(location)) {
+        if (!isValidLoc(location))
+        {
             return false;
         }
         // check that it is the player's turn
-        if (!isPlayersTurn(playerNum)) {
+        if (!isPlayersTurn(playerNum))
+        {
             return false;
         }
         // check that the location is nonempty
-        if (isEmpty(location)) {
+        if (isEmpty(location))
+        {
             return false;
         }
         // check that the location correct player
-        if (!isPlayersPawn(((playerNum + 1) % 2), location)) {
+        if (!isPlayersPawn(((playerNum + 1) % 2), location))
+        {
             return false;
         }
         // check game state
-        if (getGamePhase() != GamePhase.remove) {
+        if (getGamePhase() != GamePhase.remove)
+        {
             return false;
         }
         // check if the location is a part of a mill
-        if (IsMill(location)) {
-
+        if (hasMillFormed(location))
+        {
             boolean allItemsInMill=true;
-
-            for(int x=0;x<24;x++) {
-                if(isPlayersPawn(((playerNum + 1) % 2), x) && !IsMill(x)) {
+            for(int x=0;x<24;x++)
+            {
+                if(isPlayersPawn(((playerNum + 1) % 2), x) && !hasMillFormed(x))
+                {
                     allItemsInMill=false;
                 }
             }
@@ -409,53 +472,64 @@ public class Board
         return true;
     }
 
-    private void removePawnFrom(Integer location) {
+    private void removePawnFrom(Integer location)
+    {
         // removes a piece at location
         Integer player = GridLoc[location] - 1;
         livePawns[player]--;
         GridLoc[location] = 0;
     }
 
-    public boolean CanFly(Integer playerNum) {
+    public boolean canFly(Integer playerNum)
+    {
         /* Checks if a player can fly, this means the player has 3 or less pieces */
         return livePawns[playerNum] <= 3;
     }
 
-    public int isWinner() {
-
-        if(livePawns[0] <=2) {
+    public int isWinner()
+    {
+        if(livePawns[0] <=2)
+        {
             return 2;
         }
-        if(livePawns[1] <=2) {
+        if(livePawns[1] <=2)
+        {
             return 1;
         }
-        if(!HasLegalMoves(0)) {
+        if(!hasValidMoves(0))
+        {
             return 2;
         }
-        if(!HasLegalMoves(1)) {
+        if(!hasValidMoves(1))
+        {
             return 1;
         }
 
         return -1;
     }
 
-    public boolean HasLegalMoves(Integer playerNum) {
+    public boolean hasValidMoves(Integer playerNum)
+    {
         // checks if a player has a possible move
         // if during placement
-        if (hasUnplacedPawns(playerNum) || hasUnplacedPawns((playerNum+1)%2)) {
+        if (hasUnplacedPawns(playerNum) || hasUnplacedPawns((playerNum+1)%2))
+        {
             return true;
         }
         // if looking for movement
-        if (gamePhase == GamePhase.move) {
+        if (gamePhase == GamePhase.move)
+        {
             // if they can fly, there is a guaranteed move
-            if (CanFly(playerNum)) {
+            if (canFly(playerNum))
+            {
                 return true;
             }
             // otherwise start with location 0
             // see if the player is in that position
             // and there are open adjacent spot
             int i = 0;
-            while (i < 24) {
+            while (i < 24)
+            {
                 if (GridLoc[i] == (playerNum + 1)) {
                     Integer[] possibleAdj = adj.get(i);
                     for (int j = 0; j < possibleAdj.length; j++) {
@@ -470,11 +544,15 @@ public class Board
             return false;
         }
         // want to find a piece of the opponent that is not in a mill
-        if (gamePhase == GamePhase.remove) {
+        if (gamePhase == GamePhase.remove)
+        {
             int i = 0;
-            while (i < 24) {
-                if (GridLoc[i] == ((playerNum + 1) % 2)) {
-                    if (!IsMill(i) || everyPieceAMill((playerNum))) {
+            while (i < 24)
+            {
+                if (GridLoc[i] == ((playerNum + 1) % 2))
+                {
+                    if (!hasMillFormed(i) || everyPieceAMill((playerNum)))
+                    {
                         return true;
                     }
                 }
@@ -486,10 +564,12 @@ public class Board
         return false;
     }
 
-    public boolean everyPieceAMill(int playerNum) {
-
-        for (int x=0;x<24;x++) {
-            if (isPlayersPawn(playerNum,x) && !IsMill(x)) {
+    public boolean everyPieceAMill(int playerNum)
+    {
+        for (int x=0;x<24;x++)
+        {
+            if (isPlayersPawn(playerNum,x) && !hasMillFormed(x))
+            {
                 return false;
             }
         }
@@ -497,44 +577,51 @@ public class Board
         return true;
     }
 
-    public String getPlayerName(int playerNum) {
-        if(playerNum==0) {
+    public String getPlayerName(int playerNum)
+    {
+        if(playerNum==0)
+        {
             return getPlayerOneName();
         }
-        if(playerNum==1) {
+        if(playerNum==1)
+        {
             return getPlayerTwoName();
         }
-
         else return "invalid player";
     }
 
-    public String getPlayerOneName() {
+    public String getPlayerOneName()
+    {
         return playerOneName;
     }
-    public String getPlayerTwoName() {
+    public String getPlayerTwoName()
+    {
         return playerTwoName;
     }
 
-    public void setPlayerOneName(String playerOneName) {
+    public void setPlayerOneName(String playerOneName)
+    {
         this.playerOneName = playerOneName;
     }
 
-    public void setPlayerTwoName(String playerTwoName) {
+    public void setPlayerTwoName(String playerTwoName)
+    {
         this.playerTwoName = playerTwoName;
     }
-    public Integer numUnplacedPawns(Integer playerNum) {
+    public Integer numUnplacedPawns(Integer playerNum)
+    {
         // getter for number of unplaced pieces
         return unplacedPawns[playerNum];
     }
-    private void placePawn(Integer playerNum, Integer location) {
+    public void placePawn(Integer playerNum, Integer location)
+    {
         // places a piece at a location and decrements unplaced count
         unplacedPawns[playerNum]--;
         GridLoc[location] = playerNum + 1;
     }
-    public boolean isPlayersPawn(Integer playerNum, Integer location) {
+    public boolean isPlayersPawn(Integer playerNum, Integer location)
+    {
         // checks if the location's pawn is the player's
         return (GridLoc[location] == (playerNum + 1));
     }
-
-
 }
